@@ -5,7 +5,7 @@ from datetime import datetime
 
 def load_data():
     # CSV 파일 읽기
-    df = pd.read_csv("apple_market_price_241023.csv")
+    df = pd.read_csv("./apple_market_price_241023.csv")
     
     # 컬럼명 매핑
     column_mapping = {
@@ -26,17 +26,18 @@ def load_data():
     
     return df
 
-def create_grid_buttons(items, cols=4):
-    # 그리드 형태로 버튼 배치
-    rows = [items[i:i + cols] for i in range(0, len(items), cols)]
+def create_grid_buttons(items, num_cols=4):
+    # 빈 항목을 포함하여 전체 그리드를 구성할 수 있는 개수 계산
+    num_items = len(items)
+    num_rows = (num_items + num_cols - 1) // num_cols
     
-    for row in rows:
-        cols = st.columns(cols)
-        # 빈 열 처리를 위해 row를 확장
-        row_extended = row + [''] * (cols - len(row))
-        for col, item in zip(cols, row_extended):
-            if item and col.button(item, use_container_width=True):
-                st.session_state['current_item'] = item
+    for row_idx in range(num_rows):
+        cols = st.columns(num_cols)
+        for col_idx in range(num_cols):
+            item_idx = row_idx * num_cols + col_idx
+            if item_idx < num_items:
+                if cols[col_idx].button(items[item_idx], use_container_width=True):
+                    st.session_state['current_item'] = items[item_idx]
 
 def style_dataframe(df):
     def highlight_values(val):
