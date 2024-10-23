@@ -26,7 +26,7 @@ def load_data():
     
     return df
 
-def create_grid_buttons(items, num_cols=4):
+def create_grid_buttons(items, num_cols=4):  # 매개변수 이름이 num_cols
     # 빈 항목을 포함하여 전체 그리드를 구성할 수 있는 개수 계산
     num_items = len(items)
     num_rows = (num_items + num_cols - 1) // num_cols
@@ -110,7 +110,8 @@ def main():
         # 품종 선택 버튼 그리드
         st.markdown("### 품종 선택")
         available_items = ['전체'] + sorted(df_current['품종'].unique().tolist())
-        create_grid_buttons(available_items, cols=4)
+        # create_grid_buttons(available_items, cols=4)
+        create_grid_buttons(available_items, cols=4)  # 매개변수 이름을 cols로 사용
         
         # 선택된 품종에 따라 데이터 필터링
         if st.session_state['current_item'] != '전체':
