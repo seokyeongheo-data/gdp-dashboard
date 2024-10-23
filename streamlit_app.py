@@ -234,7 +234,7 @@ from datetime import datetime
 
 def load_data():
     # CSV 파일 읽기
-    df = pd.read_csv("./안동농협_시세표 - 사과_전체.csv")
+    df = pd.read_csv("apple_market_price_241023.csv")
     
     # 컬럼명 매핑
     column_mapping = {
