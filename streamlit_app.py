@@ -150,74 +150,12 @@
 #             delta_color=delta_color
 #         )
 
-# data_provider.py
-import pandas as pd
-from typing import Dict, List
-from abc import ABC, abstractmethod
-
-class DataProvider(ABC):
-    @abstractmethod
-    def get_market_data(self) -> pd.DataFrame:
-        pass
-    
-    @abstractmethod
-    def get_daily_summary(self) -> Dict:
-        pass
-
-class GoogleSheetDataProvider(DataProvider):
-    def __init__(self, sheet_id: str, sheet_name: str):
-        self.sheet_id = sheet_id
-        self.sheet_name = sheet_name
-    
-    def get_market_data(self) -> pd.DataFrame:
-        # TODO: 구글 스프레드시트 연동 로직 구현
-        # 현재는 샘플 데이터 반환
-        data = {
-            '등급': ['특3', '특4', '특5', '특6', '특7', '특8', '상1', '상2', '상3', '등외', '보1'],
-            '규격': ['박스 20kg'] * 11,
-            '수량': [37, 103, 89, 42, 20, 4, 210, 211, 76, 25, 63],
-            '최고가': [108900, 126600, 135500, 120000, 68900, 30100, 53900, 63000, 46900, 35100, 29300],
-            '최저가': [60100, 33000, 20000, 15000, 13300, 19900, 17000, 14900, 12900, 11200, 11100],
-            '평균가': [100986, 93873, 68842, 43419, 32200, 27250, 47845, 38673, 32187, 21264, 18524]
-        }
-        return pd.DataFrame(data)
-    
-    def get_daily_summary(self) -> Dict:
-        return {
-            'date': '2024년 10월 4일',
-            'item': '아리수',
-            'total_boxes': 880
-        }
-
-# business_logic.py
-class MarketDataProcessor:
-    def __init__(self, data_provider: DataProvider):
-        self.data_provider = data_provider
-    
-    def get_processed_market_data(self) -> pd.DataFrame:
-        df = self.data_provider.get_market_data()
-        # 필요한 데이터 처리 로직 추가
-        return df
-    
-    def get_summary(self) -> Dict:
-        return self.data_provider.get_daily_summary()
-    
-    def get_available_items(self) -> List[str]:
-        return ['홍로', '시나노골드', '노무라골드', '아리수', '감홍']
-
-# ui_utils.py
-def style_dataframe(df: pd.DataFrame):
-    def highlight_values(val):
-        if isinstance(val, (int, float)):
-            return f'color: {"red" if "최고가" in str(val) else "blue" if "평균가" in str(val) else "black"}'
-        return ''
-    
-    return df.style.applymap(highlight_values)
-
-# main.py
+# streamlit_app.py
 import streamlit as st
-from data_provider import GoogleSheetDataProvider
-from business_logic import MarketDataProcessor
+from src.data_provider import GoogleSheetDataProvider
+from src.business_logic import MarketDataProcessor
+from src.ui_utils import style_dataframe
+from typing import List
 
 def init_session_state():
     if 'current_item' not in st.session_state:
@@ -270,9 +208,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# config.py
-class Config:
-    SHEET_ID = "your_sheet_id"
-    SHEET_NAME = "your_sheet_name"
-    GCP_CREDENTIALS_PATH = "path/to/credentials.json"
