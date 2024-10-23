@@ -5,7 +5,7 @@ from datetime import datetime
 
 def load_data():
     # CSV 파일 읽기
-    df = pd.read_csv("./apple_market_price_241023.csv")
+    df = pd.read_csv("apple_market_price_241023.csv")
     
     # 컬럼명 매핑
     column_mapping = {
@@ -107,11 +107,16 @@ def main():
         # 현재 날짜의 데이터만 필터링
         df_current = df[df['날짜'] == current_date]
         
-        # 품종 선택 버튼 그리드
+        # # 품종 선택 버튼 그리드
+        # st.markdown("### 품종 선택")
+        # available_items = ['전체'] + sorted(df_current['품종'].unique().tolist())
+        # # create_grid_buttons(available_items, cols=4)
+        # create_grid_buttons(available_items, cols=4)  # 매개변수 이름을 cols로 사용
+        # 품종 선택 버튼 그리드 (이 부분을 찾아서)
+
         st.markdown("### 품종 선택")
         available_items = ['전체'] + sorted(df_current['품종'].unique().tolist())
-        # create_grid_buttons(available_items, cols=4)
-        create_grid_buttons(available_items, cols=4)  # 매개변수 이름을 cols로 사용
+        create_grid_buttons(available_items, num_cols=4)  # cols를 num_cols로 수정
         
         # 선택된 품종에 따라 데이터 필터링
         if st.session_state['current_item'] != '전체':
