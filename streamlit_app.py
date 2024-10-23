@@ -1,11 +1,10 @@
-# streamlit_app.py
 import streamlit as st
 import pandas as pd
 from datetime import datetime
 
 def load_data():
     # CSV 파일 읽기
-    df = pd.read_csv("apple_market_price_241023.csv")
+    df = pd.read_csv("./apple_market_price_241023.csv")
     
     # 컬럼명 매핑
     column_mapping = {
@@ -26,8 +25,7 @@ def load_data():
     
     return df
 
-def create_grid_buttons(items, num_cols=4):  # 매개변수 이름이 num_cols
-    # 빈 항목을 포함하여 전체 그리드를 구성할 수 있는 개수 계산
+def create_grid_buttons(items, num_cols=4):
     num_items = len(items)
     num_rows = (num_items + num_cols - 1) // num_cols
     
@@ -36,7 +34,7 @@ def create_grid_buttons(items, num_cols=4):  # 매개변수 이름이 num_cols
         for col_idx in range(num_cols):
             item_idx = row_idx * num_cols + col_idx
             if item_idx < num_items:
-                if cols[col_idx].button(items[item_idx], use_container_width=True):
+                if cols[col_idx].button(items[item_idx], use_container_width=True, key=f"btn_{items[item_idx]}"):
                     st.session_state['current_item'] = items[item_idx]
 
 def style_dataframe(df):
@@ -79,54 +77,48 @@ def main():
         
         # 세션 상태 초기화
         if 'current_date_index' not in st.session_state:
-            st.session_state['current_date_index'] = 0
+            st.session_state.current_date_index = 0
         if 'current_item' not in st.session_state:
-            st.session_state['current_item'] = '전체'
+            st.session_state.current_item = '전체'
             
         # 날짜 네비게이션
         col1, col2, col3 = st.columns([1, 3, 1])
         
+        # 이전/다음 버튼 비활성화 조건
+        prev_disabled = st.session_state.current_date_index >= len(available_dates) - 1
+        next_disabled = st.session_state.current_date_index <= 0
+        
         # 이전 버튼
-        if col1.button('◀ 이전', key='prev'):
-            if st.session_state['current_date_index'] < len(available_dates) - 1:
-                st.session_state['current_date_index'] += 1
-                st.experimental_rerun()
+        if col1.button('◀ 이전', disabled=prev_disabled, key='prev'):
+            st.session_state.current_date_index += 1
         
         # 현재 날짜 표시
-        current_date = available_dates[st.session_state['current_date_index']]
+        current_date = available_dates[st.session_state.current_date_index]
         col2.markdown(f"### {current_date} 시세")
         
         # 다음 버튼
-        if col3.button('다음 ▶', key='next'):
-            if st.session_state['current_date_index'] > 0:
-                st.session_state['current_date_index'] -= 1
-                st.experimental_rerun()
+        if col3.button('다음 ▶', disabled=next_disabled, key='next'):
+            st.session_state.current_date_index -= 1
         
         st.write(f"조회 시각: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         
         # 현재 날짜의 데이터만 필터링
         df_current = df[df['날짜'] == current_date]
         
-        # # 품종 선택 버튼 그리드
-        # st.markdown("### 품종 선택")
-        # available_items = ['전체'] + sorted(df_current['품종'].unique().tolist())
-        # # create_grid_buttons(available_items, cols=4)
-        # create_grid_buttons(available_items, cols=4)  # 매개변수 이름을 cols로 사용
-        # 품종 선택 버튼 그리드 (이 부분을 찾아서)
-
+        # 품종 선택 버튼 그리드
         st.markdown("### 품종 선택")
         available_items = ['전체'] + sorted(df_current['품종'].unique().tolist())
-        create_grid_buttons(available_items, num_cols=4)  # cols를 num_cols로 수정
+        create_grid_buttons(available_items, num_cols=4)
         
         # 선택된 품종에 따라 데이터 필터링
-        if st.session_state['current_item'] != '전체':
-            df_display = df_current[df_current['품종'] == st.session_state['current_item']]
+        if st.session_state.current_item != '전체':
+            df_display = df_current[df_current['품종'] == st.session_state.current_item]
         else:
             df_display = df_current
             
         # 품종별 총 수량 계산
         total_quantity = df_display['수량'].sum()
-        st.markdown(f"### {st.session_state['current_item']} 반입량: {total_quantity:,} 상자")
+        st.markdown(f"### {st.session_state.current_item} 반입량: {total_quantity:,} 상자")
         
         # 데이터 표시
         st.dataframe(
